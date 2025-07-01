@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../include/hash.h"
+
+NoHash* hash[TAM_MAX] = {NULL}; // Inicializa a tabela hash com NULL
+
+int hashFuncao(const char *id) {
+    int soma = 0;
+    for (int i = 0; id[i] != '\0'; i++) {
+        soma += id[i];
+    }
+    return soma % TAM_MAX;
+}
+
+void inserirHash(Paciente p){
+    int index = hashFuncao(p.id);
+
+    NoHash *novoNo = (NoHash *)malloc(sizeof(NoHash));
+    if (novoNo == NULL) {
+        perror("Erro ao alocar memória para novo nó");
+        return;
+    }
+
+    novoNo->paciente = p;
+    novoNo->proximo = NULL;
+
+    if(hash[index] == NULL) {
+        hash[index] = novoNo; // Insere o novo nó se a posição estiver vazia
+    } else {
+        novoNo->proximo = hash[index]; // Insere o novo nó no início da lista encadeada
+        hash[index] = novoNo;
+    }
+}
+
+int todosAtendidos() {
+    for (int i = 0; i < TAM_MAX; i++) {
+        NoHash *atual = hash[i];
+        while (atual != NULL) {
+            if (!atual->paciente.atendido) {
+                return 0; // Retorna 0 se encontrar algum paciente não atendido
+            }
+            atual = atual->proximo;
+        }
+    }
+    return 1; // Retorna 1 se todos os pacientes foram atendidos
+}
+
+void liberaHash() {
+    for (int i = 0; i < TAM_MAX; i++) {
+        NoHash *atual = hash[i];
+        while (atual != NULL) {
+            NoHash *temp = atual;
+            atual = atual->proximo;
+            free(temp);
+        }
+        hash[i] = NULL; // Limpa a posição da tabela hash
+    }
+}
+
+Paciente* sortearPaciente() {
+    // Contar total de pacientes disponíveis
+    int candidatos = 0;
+    for (int i = 0; i < TAM_MAX; i++) {
+        for (NoHash *atual = hash[i]; atual != NULL; atual = atual->proximo) {
+            if (atual->paciente.atendido == 0) {
+                candidatos++;
+            }
+        }
+    }
+
+    if (candidatos == 0) return NULL;
+
+    // Escolher aleatoriamente entre os candidatos
+    int alvo = rand() % candidatos;
+    int cont = 0;
+
+    for (int i = 0; i < TAM_MAX; i++) {
+        NoHash **anterior = &hash[i];
+        NoHash *atual = hash[i];
+
+        while (atual != NULL) {
+            if (atual->paciente.atendido == 0) {
+                if (cont == alvo) {
+                    atual->paciente.atendido = 1;
+
+                    // Remove da hash
+                    *anterior = atual->proximo;
+
+                    // Copia para retorno
+                    Paciente *resultado = malloc(sizeof(Paciente));
+                    if (!resultado) {
+                        perror("Erro ao alocar paciente sorteado");
+                        exit(EXIT_FAILURE);
+                    }
+
+                    *resultado = atual->paciente;
+                    free(atual);
+                    return resultado;
+                }
+                cont++;
+            }
+
+            anterior = &atual->proximo;
+            atual = atual->proximo;
+        }
+    }
+
+    return NULL; // Nunca deveria chegar aqui
+}
