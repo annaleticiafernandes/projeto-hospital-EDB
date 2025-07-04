@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "deque.h"
+#include "../include/deque.h"
 
 void inicializarDeque(Deque *d){
     d->inicio = NULL;

@@ -1,0 +1,30 @@
+# Ignorar arquivos objeto
+*.o
+*.obj
+
+# Ignorar executáveis
+*.exe
+*.out
+*.dll
+*.so
+*.dylib
+
+# Ignorar pastas de build/bin
+bin/
+build/
+
+# Ignorar arquivos temporários e backup do editor
+*~
+*.swp
+*.swo
+*.bak
+
+# Ignorar arquivos de logs
+*.log
+
+# Ignorar arquivos gerados pelo sistema Windows
+Thumbs.db
+.DS_Store
+
+# Ignorar arquivos de configuração do VSCode
+.vscode/
