@@ -3,9 +3,15 @@
 #include <string.h>
 #include "../include/hash.h"
 
-NoHash* hash[TAM_MAX] = {NULL}; // Inicializa a tabela hash com NULL
+NoHash *tabela[TAM_MAX]; // Tabela hash, que é um vetor de ponteiros para NoHash
 
-int hashFuncao(const char *id) {
+void inicializarHash(void){
+    for(int i = 0; i < TAM_MAX; i++) {
+        tabela[i] = NULL; // Inicializa cada posição da tabela hash com NULL
+    }
+}
+
+int funcaoHash(const char *id) {
     int soma = 0;
     for (int i = 0; id[i] != '\0'; i++) {
         soma += id[i];
@@ -14,7 +20,7 @@ int hashFuncao(const char *id) {
 }
 
 void inserirHash(Paciente p){
-    int index = hashFuncao(p.id);
+    int index = funcaoHash(p.id);
 
     NoHash *novoNo = (NoHash *)malloc(sizeof(NoHash));
     if (novoNo == NULL) {
@@ -25,17 +31,17 @@ void inserirHash(Paciente p){
     novoNo->paciente = p;
     novoNo->proximo = NULL;
 
-    if(hash[index] == NULL) {
-        hash[index] = novoNo; // Insere o novo nó se a posição estiver vazia
+    if(tabela[index] == NULL) {
+        tabela[index] = novoNo; // Insere o novo nó se a posição estiver vazia
     } else {
-        novoNo->proximo = hash[index]; // Insere o novo nó no início da lista encadeada
-        hash[index] = novoNo;
+        novoNo->proximo = tabela[index]; // Insere o novo nó no início da lista encadeada
+        tabela[index] = novoNo;
     }
 }
 
 int todosAtendidos() {
     for (int i = 0; i < TAM_MAX; i++) {
-        NoHash *atual = hash[i];
+        NoHash *atual = tabela[i];
         while (atual != NULL) {
             if (!atual->paciente.atendido) {
                 return 0; // Retorna 0 se encontrar algum paciente não atendido
@@ -48,13 +54,13 @@ int todosAtendidos() {
 
 void liberaHash() {
     for (int i = 0; i < TAM_MAX; i++) {
-        NoHash *atual = hash[i];
+        NoHash *atual = tabela[i];
         while (atual != NULL) {
             NoHash *temp = atual;
             atual = atual->proximo;
             free(temp);
         }
-        hash[i] = NULL; // Limpa a posição da tabela hash
+        tabela[i] = NULL; // Limpa a posição da tabela hash
     }
 }
 
@@ -62,7 +68,7 @@ Paciente* sortearPaciente() {
     // Contar total de pacientes disponíveis
     int candidatos = 0;
     for (int i = 0; i < TAM_MAX; i++) {
-        for (NoHash *atual = hash[i]; atual != NULL; atual = atual->proximo) {
+        for (NoHash *atual = tabela[i]; atual != NULL; atual = atual->proximo) {
             if (atual->paciente.atendido == 0) {
                 candidatos++;
             }
@@ -76,8 +82,8 @@ Paciente* sortearPaciente() {
     int cont = 0;
 
     for (int i = 0; i < TAM_MAX; i++) {
-        NoHash **anterior = &hash[i];
-        NoHash *atual = hash[i];
+        NoHash **anterior = &tabela[i];
+        NoHash *atual = tabela[i];
 
         while (atual != NULL) {
             if (atual->paciente.atendido == 0) {
