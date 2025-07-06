@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h> // Para sleep()
 #include "../include/paciente.h"
 #include "../include/hash.h"
 #include "../include/deque.h"
 #include "../include/leitos.h"
 #include "../include/pilha.h"
+#include "../include/log.h" // NOVO: módulo de log
 
 int main() {
     srand(time(NULL));
@@ -31,28 +33,29 @@ int main() {
     Pilha pilhaAlta;
     inicializarPilha(&pilhaAlta);
 
+    // Inicializar log
+    iniciarLog();
+
     // Loop de simulação
     int ciclo = 1;
     while (!todosAtendidos()) {
+        logCiclo(ciclo); // Log do início do ciclo
         printf("\n--- Ciclo %d ---\n", ciclo++);
 
         // Sorteia paciente da hash
         Paciente *sorteado = sortearPaciente();
         if (sorteado != NULL) {
-            printf("Sorteado: %s (prioridade %d)\n", sorteado->nome, sorteado->prioridade);
             inserirDeque(&fila, *sorteado);
+            logEspera(sorteado); // Log de espera
             free(sorteado);
-        } else {
-            printf("Nenhum paciente sorteado.\n");
         }
 
         // Remove do deque e tenta internar
         if (fila.tamanho > 0) {
             Paciente p = RemoverDeque(&fila);
             if (internarPaciente(leitos, p)) {
-                printf("Paciente %s internado.\n", p.nome);
+                logInternado(&p); // Log de internado
             } else {
-                printf("Sem leitos disponíveis para %s. Voltando para a fila.\n", p.nome);
                 inserirDeque(&fila, p); // Reinsere na fila
             }
         }
@@ -63,19 +66,20 @@ int main() {
             Paciente p = *(leitos[indiceAlta].ocupado);
             empilharPaciente(&pilhaAlta, p);
             liberarLeito(leitos, indiceAlta);
-            printf("Alta: %s (Leito %d)\n", p.nome, indiceAlta);
+            logAlta(&p); // Log de alta
         }
 
         // Mostrar estado atual
         mostrarLeitos(leitos);
-        printf("\n");
+
+        sleep(2); // Espera 2 segundos entre ciclos
     }
 
-    // Finalização
     printf("\nTodos os pacientes foram atendidos.\n\n");
     mostrarPilha(&pilhaAlta);
 
-    // Liberação de memória
+    // Finalização
+    finalizarLog(); // Fecha o arquivo de log
     liberarDeque(&fila);
     liberarTodosLeitos(leitos);
     liberaHash();
