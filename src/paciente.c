@@ -11,7 +11,7 @@ void lerCvs(const char *arquivo, Paciente pacientes[], int *total) {
     }
 
     char linha[256];
-    *total = 0; // Inicializa o total de pacientes
+    *total = 0;
 
     while (fgets(linha, sizeof(linha), file)){
         if(*total == 0 && linha[0] == 'I'){
@@ -29,7 +29,7 @@ void lerCvs(const char *arquivo, Paciente pacientes[], int *total) {
 
         (*total)++;
 
-        if (*total >= 100) { // Limite máximo de pacientes
+        if (*total >= 100) { 
             break;
         }
     }

@@ -3,15 +3,15 @@
 #include <string.h>
 #include "../include/hash.h"
 
-NoHash *tabela[TAM_MAX]; // Tabela hash, que é um vetor de ponteiros para NoHash
+NoHash *tabela[TAM_MAX]; 
 
 void inicializarHash(void){
     for(int i = 0; i < TAM_MAX; i++) {
-        tabela[i] = NULL; // Inicializa cada posição da tabela hash com NULL
+        tabela[i] = NULL; 
     }
 }
 
-int funcaoHash(const char *id) { // Função que calcula o índice da tabela hash baseado no ID do paciente
+int funcaoHash(const char *id) { 
     int soma = 0;
     for (int i = 0; id[i] != '\0'; i++) {
         soma += id[i];
@@ -32,9 +32,9 @@ void inserirHash(Paciente p){
     novoNo->proximo = NULL;
 
     if(tabela[index] == NULL) {
-        tabela[index] = novoNo; // Insere o novo nó se a posição estiver vazia
+        tabela[index] = novoNo; 
     } else {
-        novoNo->proximo = tabela[index]; // Insere o novo nó no início da lista encadeada
+        novoNo->proximo = tabela[index]; 
         tabela[index] = novoNo;
     }
 }
@@ -44,12 +44,12 @@ int todosAtendidos() {
         NoHash *atual = tabela[i];
         while (atual != NULL) {
             if (!atual->paciente.atendido) {
-                return 0; // Retorna 0 se encontrar algum paciente não atendido
+                return 0; 
             }
             atual = atual->proximo;
         }
     }
-    return 1; // Retorna 1 se todos os pacientes foram atendidos
+    return 1; 
 }
 
 void liberaHash() {
@@ -60,12 +60,11 @@ void liberaHash() {
             atual = atual->proximo;
             free(temp);
         }
-        tabela[i] = NULL; // Limpa a posição da tabela hash
+        tabela[i] = NULL; 
     }
 }
 
 Paciente* sortearPaciente() {
-    // Conta total de pacientes disponíveis
     int candidatos = 0;
     for (int i = 0; i < TAM_MAX; i++) {
         for (NoHash *atual = tabela[i]; atual != NULL; atual = atual->proximo) {
@@ -77,7 +76,6 @@ Paciente* sortearPaciente() {
 
     if (candidatos == 0) return NULL;
 
-    // Escolhe aleatoriamente entre os candidatos
     int alvo = rand() % candidatos;
     int cont = 0;
 
@@ -90,10 +88,8 @@ Paciente* sortearPaciente() {
                 if (cont == alvo) {
                     atual->paciente.atendido = 1;
 
-                    // Remove da hash
                     *anterior = atual->proximo;
 
-                    // Copia para retorno
                     Paciente *resultado = malloc(sizeof(Paciente));
                     if (!resultado) {
                         perror("Erro ao alocar paciente sorteado");

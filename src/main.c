@@ -1,24 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h> // Para sleep()
+#include <unistd.h> 
 #include "../include/paciente.h"
 #include "../include/hash.h"
 #include "../include/deque.h"
 #include "../include/leitos.h"
 #include "../include/pilha.h"
-#include "../include/log.h" // NOVO: módulo de log
+#include "../include/log.h" 
 
 int main() {
     srand(time(NULL));
 
-    // Etapa 1: Carregar pacientes do CSV
     Paciente pacientes[100];
     int total = 0;
     lerCvs("pacientes.csv", pacientes, &total);
     printf("\nTotal de pacientes lidos: %d\n", total);
 
-    // Etapa 2: Inicializar estruturas
     inicializarHash();
     for (int i = 0; i < total; i++) {
         inserirHash(pacientes[i]);
@@ -33,53 +31,46 @@ int main() {
     Pilha pilhaAlta;
     inicializarPilha(&pilhaAlta);
 
-    // Inicializar log
     iniciarLog();
 
-    // Loop de simulação
     int ciclo = 1;
     while (!todosAtendidos()) {
-        logCiclo(ciclo); // Log do início do ciclo
+        logCiclo(ciclo); 
         printf("\n--- Ciclo %d ---\n", ciclo++);
 
-        // Sorteia paciente da hash
         Paciente *sorteado = sortearPaciente();
         if (sorteado != NULL) {
             inserirDeque(&fila, *sorteado);
-            logEspera(sorteado); // Log de espera
+            logEspera(sorteado); 
             free(sorteado);
         }
 
-        // Remove do deque e tenta internar
         if (fila.tamanho > 0) {
             Paciente p = RemoverDeque(&fila);
             if (internarPaciente(leitos, p)) {
-                logInternado(&p); // Log de internado
+                logInternado(&p); 
             } else {
-                inserirDeque(&fila, p); // Reinsere na fila
+                inserirDeque(&fila, p);
             }
         }
 
-        // Simula alta (um leito aleatório)
         int indiceAlta = rand() % QTD_LEITOS;
         if (leitos[indiceAlta].ocupado != NULL) {
             Paciente p = *(leitos[indiceAlta].ocupado);
             empilharPaciente(&pilhaAlta, p);
             liberarLeito(leitos, indiceAlta);
-            logAlta(&p); // Log de alta
+            logAlta(&p); 
         }
 
-        // Mostrar estado atual
         mostrarLeitos(leitos);
 
-        sleep(2); // Espera 2 segundos entre ciclos
+        sleep(2);
     }
 
     printf("\nTodos os pacientes foram atendidos.\n\n");
     mostrarPilha(&pilhaAlta);
 
-    // Finalização
-    finalizarLog(); // Fecha o arquivo de log
+    finalizarLog(); 
     liberarDeque(&fila);
     liberarTodosLeitos(leitos);
     liberaHash();

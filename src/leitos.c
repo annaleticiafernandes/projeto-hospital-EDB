@@ -17,10 +17,10 @@ int internarPaciente(Leito leitos[], Paciente p) {
                 exit(EXIT_FAILURE);
             }
             *(leitos[i].ocupado) = p;
-            return 1; // Internado com sucesso
+            return 1;
         }
     }
-    return 0; // Não há leitos disponíveis
+    return 0; 
 }
 
 int liberarLeito(Leito leitos[], int indice) {
