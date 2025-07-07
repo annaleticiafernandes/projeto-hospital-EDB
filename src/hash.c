@@ -11,7 +11,7 @@ void inicializarHash(void){
     }
 }
 
-int funcaoHash(const char *id) {
+int funcaoHash(const char *id) { // Função que calcula o índice da tabela hash baseado no ID do paciente
     int soma = 0;
     for (int i = 0; id[i] != '\0'; i++) {
         soma += id[i];
@@ -65,7 +65,7 @@ void liberaHash() {
 }
 
 Paciente* sortearPaciente() {
-    // Contar total de pacientes disponíveis
+    // Conta total de pacientes disponíveis
     int candidatos = 0;
     for (int i = 0; i < TAM_MAX; i++) {
         for (NoHash *atual = tabela[i]; atual != NULL; atual = atual->proximo) {
@@ -77,7 +77,7 @@ Paciente* sortearPaciente() {
 
     if (candidatos == 0) return NULL;
 
-    // Escolher aleatoriamente entre os candidatos
+    // Escolhe aleatoriamente entre os candidatos
     int alvo = rand() % candidatos;
     int cont = 0;
 
@@ -112,5 +112,5 @@ Paciente* sortearPaciente() {
         }
     }
 
-    return NULL; // Nunca deveria chegar aqui
+    return NULL;
 }
